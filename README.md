@@ -60,9 +60,7 @@ All metrics are calculated from a monthly snapshot table in BigQuery:
 - **Active Customers** – customers whose most recent order is within the last 12 months (as of the snapshot month).  
 - **Inactive Customers** – customers who never ordered or whose last order was more than 12 months before the snapshot month.  
 - **Active Share of Customers (%)**  
-  \[
-  \text{Active Share} = \frac{\#(\text{active} + \text{new customers})}{\#(\text{all customers in month})}
-  \]
+  Active Share = (Active Customers + New Customers) / Total Customers in month
 - **Total Orders to Date** – cumulative orders up to the snapshot month.  
 - **Avg. Orders/Customer** – total orders to date ÷ total customers.
 
