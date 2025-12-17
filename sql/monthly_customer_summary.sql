@@ -1,13 +1,7 @@
--- monthly_customer_summary.sql
-
--- aggregate customer data and perform rolling monthly calculations
-  -- group data by user_id to calculate total_orders
-  -- add flags for customer status
-    -- is_new_customer = TRUE if customer signed up within last 30 days
-    -- customer status inactive = after 12 months
-
--- source:
-  -- merch-funnel.customer_analysis.complete_customer_data
+-- output: merch-funnel.customer_analysis.monthly_customer_summary
+-- grain: snapshot_month × user_id (one row per customer-month)
+-- sources: merch-funnel.customer_analysis.complete_customer_data
+-- notes: Status as of snapshot_month using orders up to that month; 'new' = signup_month = snapshot_month; 'active' = last order within 12 months; else inactive
 
 CREATE OR REPLACE TABLE
   `merch-funnel.customer_analysis.monthly_customer_summary` AS

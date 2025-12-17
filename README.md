@@ -1,29 +1,59 @@
-# Customer Analysis – TheLook eCommerce
+# TheLook eCommerce Analytics Dashboard
 
-Interactive **monthly customer analysis** built on Google BigQuery’s public **TheLook eCommerce** dataset.  
-I modeled customer status over time (active / inactive / new), created a rolling monthly customer snapshot in BigQuery, and visualized the results in Looker Studio.
+Multi-page analytics dashboard built on Google BigQuery’s public **TheLook eCommerce** dataset.
+Includes a **Yearly Summary** page, a **Sales Analysis** page, and an interactive **Monthly Customer Analysis** experience (with a drill-through **Customer Details** explorer).
+
+I modeled customer status over time (active / inactive / new), built a rolling **monthly customer snapshot** in BigQuery, created monthly sales aggregates, and combined them into a Looker Studio report.
 
 ---
 
 ## Live dashboard
 
 🔗 **Interactive report:**  
-[Customer Analysis – Looker Studio](https://lookerstudio.google.com/s/rg-kbzgndl4)
+[Customer Analysis – Looker Studio](https://lookerstudio.google.com/s/nk38J66QtYs)
 
 ---
 
-## Dashboard preview
+## Dashboard export (PDF)
 
-[Customer Analysis Dashboard (PDF)](customer_analysis_dashboard.pdf)
+[theLook Analysis Dashboard (PDF)](thelook_analysis_dashboard.pdf)
 
-The main page shows a **snapshot month selector** (Nov 2025 by default) with:
+Note: The PDF is a static export. The live Looker Studio report contains filters, drill-through navigation, and interactive tooltips.
 
-- Total / Active / Inactive / New customers  
-- Total orders to date & average orders per customer  
-- Customer status trend (Inactive / Existing / New) with **Active Share of Customers (%)**  
-- Acquisition, demographic, and geography breakdowns  
-- A self-serve customer details table with filters
-- **The month slicer applies to all visuals _except_ the “Customer Status & Active Share Over Time” chart and the Customer Details table.**
+--- 
+
+## Pages included
+
+1) Summary (Year view)
+A high-level executive view of performance by year (year-grain KPIs and trends).
+
+2) Sales Analysis
+Sales performance trends and breakdowns using monthly aggregates:
+- Revenue, Orders, Units Sold, AOV, Units/Order over time
+- Breakdowns by category and geography
+- Top products contribution
+
+3) Monthly Customer Analysis (Month view)
+The main customer page is **month-grain** and centered around a **Snapshot Month** selector (Nov. 2025 by default), including:
+  - Total/Active/Inactive/New customers
+  - Order activity context (e.g., total orders to date, avg. orders/customer)
+  - Acquisition, demographic, and geography breakdowns
+  - A “Full Customer Details” drill-through path for deeper exploration
+
+4) Customer Details (Drill-through)
+The Customer Details page is a drill-through destination from Monthly Customer Analysis (via "Full Customer Details"), intended for deeper segmentation and record-level exploration.
+
+---
+
+## Filter behavior
+
+Different pages use different grains, so filters are intentionally page-appropriate:
+
+- Summary page = Year grain (year selector / year-based context)
+- Monthly Customer Analysis = Snapshot Month grain 
+- Customer Details = Drill-through Drill-through context
+  - reached from the Monthly page
+  - used for segmentation and exploration
 
 ---
 
@@ -31,38 +61,36 @@ The main page shows a **snapshot month selector** (Nov 2025 by default) with:
 
 This project is designed to answer questions a retail / e-commerce team would care about:
 
+### Customer questions
 1. **How many customers do we have, and how many are active vs inactive each month?**  
-2. **Is our customer base actually growing, or are we just accumulating churned customers?**  
+2. **Is the customer base growing healthily, or are we accumulating churned customers?**  
 3. **Which traffic sources drive the most customers?**  
-4. **What does our customer base look like by age and gender?**  
-5. **Which countries contribute the most customers in a given month?**  
-6. **Can stakeholders drill into specific segments (e.g., “Female customers aged 20–25 in the US who are active in Nov 2025”)?**
+4. **What does our customer base look like by age, gender, and geography?**  
+5. **Can stakeholders drill into specific segments (e.g., “Active US customers, age 20–25, in Nov 2025”)?**
 
----
-
-## Key findings (Nov 2025 snapshot)
-
-- The customer base has grown to **100,000 total customers**, of which **~40% are active** and **~57% are inactive**, with **3,400+ new customers** added in Nov 2025.
-- **Active share of customers is ~43%** and has stabilized in the 40–45% range after an initial drop in the early years, suggesting a mature but relatively sticky customer base.
-- **Search drives ~70% of customers**, with Organic and Facebook making up most of the remaining acquisition. Display and Email contribute only a small share.
-- The core customer demographic is **young adults (roughly 20–40)** with a fairly balanced gender split, indicating a broad mainstream apparel audience rather than a niche segment.
-- Customer geography is highly concentrated: **China and the United States** are consistently the top two markets, followed by **Brazil, South Korea, and France**.
-- The **Customer Details** explorer makes it easy to zoom into specific segments, enabling targeted retention or marketing campaigns.
-
+### Sales questions
+6. **How are revenue, orders, and units trending over time?**
+7. **What time periods, product areas, or segments are driving growth/decline?**
+8. **How do sales patterns line up with customer growth, churn, and acquisition mix?**
 ---
 
 ## Key metrics & definitions
 
-All metrics are calculated from a monthly snapshot table in BigQuery:
+### Customer metrics (monthly snapshot)
+- **Total Customers** - distinct users in the dataset
+- **New Customers** - customers whose signup month equals the snapshot month
+- **Active Customers** - customers whose most recent order is within the last 12 months (as of the snapshot month)
+- **Inactive Customers** - customers who never ordered or whose last order was more than 12 months before the snapshot month
+- **Active Share of Customers (%)** - Active Share = (Active Customers + New Customers) / Total Customers (snapshot month)
+- **Total Orders to Date** - cumulative orders up to the snapshot month
+- **Avg. Orders/Customer** - total orders to date / total customers
 
-- **Total Customers** – distinct users in the dataset.  
-- **New Customers** – customers whose signup month equals the snapshot month.  
-- **Active Customers** – customers whose most recent order is within the last 12 months (as of the snapshot month).  
-- **Inactive Customers** – customers who never ordered or whose last order was more than 12 months before the snapshot month.  
-- **Active Share of Customers (%)**  
-  Active Share = (Active Customers + New Customers) / Total Customers in month
-- **Total Orders to Date** – cumulative orders up to the snapshot month.  
-- **Avg. Orders/Customer** – total orders to date ÷ total customers.
+### Sales metrics (monthly aggregates)
+- **Revenue** – sum of sale_price from order items (excluding Cancelled/Returned)
+- **Orders** – distinct order_id
+- **Units Sold** – count of order items (excluding Cancelled/Returned)
+- **AOV** – revenue ÷ orders
+- **Units/Order** – units sold ÷ orders
 
 ---
 
@@ -83,6 +111,8 @@ This project uses Google’s public **TheLook eCommerce** dataset:
 - Tables used:
   - `bigquery-public-data.thelook_ecommerce.users`
   - `bigquery-public-data.thelook_ecommerce.orders`
+  - `bigquery-public-data.thelook_ecommerce.order_items`
+  - `bigquery-public-data.thelook_ecommerce.products`
 
 TheLook is a **fictitious** online clothing store; the data is synthetic and intended for analytics demos and education.
 
@@ -92,117 +122,81 @@ TheLook is a **fictitious** online clothing store; the data is synthetic and int
 
 All transformation logic lives in the `sql/` directory.
 
-### 1. `complete_customer_data.sql`
+### Customer modeling (monthly snapshot) 
 
-Joins `users` and `orders` into a **customer–order table**, adding:
+1) `complete_customer_data.sql`
+Joins `users` + `orders` into a customer–order base table and attaches each customer’s most recent order.
+  Output: `merch-funnel.customer_analysis.complete_customer_data`
 
-- `signup_date`, `signup_month`  
-- `order_date`, `order_quantity`  
-- `most_recent_order_id`, `most_recent_order_date` per user  
+2) `monthly_customer_summary.sql`
+Builds a rolling monthly snapshot (grain: `snapshot_month` × `user_id`) with:
+- cumulative total orders as of the snapshot month
+- most recent order date as of the snapshot month
+- status $\varepsilon$ {new, active, inactive}
+  Output: `merch-funnel.customer_analysis.monthly_customer_summary`
 
-→ Output: `merch-funnel.customer_analysis.complete_customer_data`
+3) `monthly_customer_kpis.sql`
+Aggregates snapshot data to month-level KPIs (grain: `snapshot_month`) for dashboard scorecards and trends.
+  Output: `merch-funnel.customer_analysis.monthly_customer_kpis`
 
----
+### Sales modeling (monthly aggregates) 
 
-### 2. `monthly_customer_summary.sql`
+4) `monthly_sales_overview.sql`
+Monthly sales performance (grain: `month`): revenue, orders, units, AOV, units/order.
+  Output: `merch-funnel.sales_analysis.monthly_sales_overview`
 
-Builds a **monthly customer snapshot**:
+5) `monthly_sales_by_category.sql`
+Monthly sales by product category (grain: `month × category`).
+  Output: `merch-funnel.sales_analysis.monthly_sales_by_category`
 
-- One row per (`snapshot_month`, `user_id`)  
-- Cumulative `total_orders` and `most_recent_order_date` as of each month  
-- Flags:
-  - `is_new_customer`  
-  - `status` ∈ {`new`, `active`, `inactive`} based on last order date  
+6) `monthly_sales_by_geo.sql`
+Monthly sales by customer category (grain: `month × country`).
+  Output: `merch-funnel.sales_analysis.monthly_sales_by_geo`
 
-→ Output: `merch-funnel.customer_analysis.monthly_customer_summary`
+7) `top_products_overall.sql`
+Top products overall (grain: product) with revenue share of total.
+  Output: `merch-funnel.sales_analysis.top_products_overall`
 
----
+8) `monthly_sales_by_customer_type.sql`
+Bridge table linking sales to customer status (grain: `month × customer_type`) by joining order activity to the monthly customer snapshot.
+  Output: `merch-funnel.sales_analysis.monthly_sales_by_customer_type`
 
-### 3. `monthly_customer_kpis.sql`
-
-Aggregates to **month-level KPIs** used in the dashboard:
-
-- `total_customers`  
-- `active_customers`, `inactive_customers`, `new_customers`  
-- `active_share`  
-- `total_orders_to_date`  
-- `avg_orders_per_customer`  
-
-→ Output: `merch-funnel.customer_analysis.monthly_customer_kpis`
-
----
-
-## Dashboard layout
-
-**Header & controls**
-
-- Title: **Customer Analysis**  
-- Control: `Snapshot month` (Month selector)
-
-The `Snapshot month` control filters all visuals on the page **except**:
-- **Customer Status & Active Share Over Time** – always shows the full history from Jan 2019 to the latest month.
-- **Customer Details** – demonstrates the complete data and is controlled by its own filters (Age, Gender, Country, Status) rather than the snapshot month.
-
-
-**KPI row**
-
-- Total Customers  
-- Active Customers  
-- Inactive Customers  
-- New Customers  
-- Total Orders to Date  
-- Avg. Orders/Customer  
-- Active Share of Customers (%)
-
-**Visuals**
-
-1. **Customer Status & Active Share Over Time**  
-   - Stacked columns: Inactive / Existing / New customers  
-   - Line: Active share of customers (%)
-
-2. **Acquisition & demographics**  
-   - Pie: *What traffic sources drive customers?*  
-   - Bar: Age/gender breakdown  
-   - Donut: Customers by age band
-
-3. **Geography**  
-   - Map: Customer distribution by country  
-   - Table: Top 5 countries by customers (for the selected month)
-
-4. **Customer Details table**  
-   - Columns: user, signup date, age, gender, city, country, traffic source, total orders, status  
-   - Filters: Age, Gender, Country, Status + “Clear filters” button  
+9) `overall_summary.sql`
+Combined monthly dataset used on the Summary page (grain: `month`) joining sales overview + customer KPIs.
+  Output: `merch-funnel.sales_analysis.overall_summary`
 
 ---
 
 ## Interactivity
 
-- **Trend tooltip example**
-
-  ![Customer Status Trend Tooltip](img/customer_analysis_trend_tooltip.png)
-
-- **Filtered customer segment view**
-
-  ![Customer Details Table Filters](img/customer_analysis_filters.png)
+- Month-grain customer exploration via the Snapshot Month control
+- Drill-through to Customer Details for deeper segmentation
+- Page-level filtering to prevent grain mismatches (Year view vs Month view)
 
 ---
 
 ## How to reproduce
 
 1. Create a Google Cloud project and enable **BigQuery**.  
-2. Create a dataset (e.g., `merch-funnel.customer_analysis`).  
-3. Run, in order:  
-
-   - `sql/complete_customer_data.sql`  
-   - `sql/monthly_customer_summary.sql`  
-   - `sql/monthly_customer_kpis.sql`  
-
-4. In Looker Studio, connect to these tables and recreate the visuals, or copy the shared report and repoint the data source to your dataset.
+2. Create datasets: 
+  - `merch-funnel.customer_analysis` 
+  - `merch-funnel.sales_analysis`  
+3. Run SQL scripts in order:
+  1. `complete_customer_data.sql`
+  2. `monthly_customer_summary.sql`
+  3. `monthly_customer_kpis.sql`
+  4. `monthly_sales_overview.sql`
+  5. `monthly_sales_by_category.sql`
+  6. `monthly_sales_by_geo.sql`
+  7. `top_products_overall.sql`
+  8. `monthly_sales_by_customer_type.sql`
+  9. `overall_summary.sql`
+4. In Looker Studio, connect the resulting tables and recreate visuals (or copy the shared report and repoint the data sources).
 
 ---
 
 ## Next steps (future work)
 
 - Add cohort analysis (retention by signup month).  
-- Build a customer funnel (browse → add to cart → purchase).  
-- Layer in revenue metrics (AOV, CLV proxies) using the same modeling pattern.
+- Build a session-based funnel (browse → cart → purchase).  
+- Add revenue-per-customer / CLV proxy metrics using the snapshot pattern

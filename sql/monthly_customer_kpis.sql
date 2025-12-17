@@ -1,14 +1,7 @@
--- monthly_customer_kpis.sql
-
--- monthly rollup of customer KPIs for dashboard cards + trend charts:
-  -- total_customers
-  -- active / new / inactive customers
-  -- active_share
-  -- cumulative total_orders_to_date
-  -- avg_orders_per_customer (cumulative)
-
--- source:
-  -- merch-funnel.customer_analysis.monthly_customer_summary
+-- output: merch-funnel.customer_analysis.monthly_customer_kpis
+-- grain: snapshot_month (one row per month)
+-- sources: merch-funnel.customer_analysis.monthly_customer_summary
+-- notes: active_share = (active + new) / total; total_orders_to_date and avg_orders_per_customer derived from rolling totals in monthly_customer_summary
 
 CREATE OR REPLACE TABLE `merch-funnel.customer_analysis.monthly_customer_kpis` AS
 SELECT
